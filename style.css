@@ -14,3 +14,42 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+/* Estilo personalizado para la barra de desplazamiento de categorías */
+::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ef4444;
+}
+
+/* Estilo para las barras de desplazamiento verticales en los menús desplegables y modales */
+select::-webkit-scrollbar {
+    width: 6px;
+}
+
+select::-webkit-scrollbar-track {
+    background: #0f172a;
+    border-radius: 8px;
+}
+
+select::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 8px;
+}
+
+select::-webkit-scrollbar-thumb:hover {
+    background: #ef4444;
+}

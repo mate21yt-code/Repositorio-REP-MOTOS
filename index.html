@@ -47,12 +47,12 @@
 </head>
 <body class="bg-black text-slate-100 min-h-screen font-sans antialiased selection:bg-accentRed selection:text-white">
 
-    <!-- Header / Barra de Navegación -->
+    <!-- Header / Barra de Navegación (Centrado absoluto equilibrado) -->
     <header class="sticky top-0 z-40 bg-darkBg/80 backdrop-blur-md border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
             
-            <!-- Columna Izquierda: Logo  -->
-            <div class="flex-1 flex items-center justify-start gap-4">
+            <!-- Izquierda: Logo (Ocupa un tercio) -->
+            <div class="w-1/3 flex items-center justify-start">
                 <div ondblclick="abrirModalAdmin()" class="flex items-center cursor-pointer select-none group" title="Hacé doble clic para ingresar como administrador">
                     <div class="p-1 group-hover:scale-105 transition-transform">
                         <img src="img/REPMOTOS.png" alt="REP MOTOS Logo" class="h-16 w-auto object-contain">
@@ -60,55 +60,74 @@
                 </div>
             </div>
             
-            <!-- Columna Central: Menú -->
-            <nav class="hidden md:flex flex-1 items-center justify-center gap-8 text-base font-bold text-slate-200">
+            <!-- Centro: Menú forzado estrictamente en una sola línea -->
+            <nav class="hidden md:flex w-1/3 items-center justify-center gap-6 text-sm font-bold text-slate-200 whitespace-nowrap">
                 <a href="#inicio" class="hover:text-accentYellow transition-colors">Inicio</a>
                 
+                <!-- Enlace a Ofertas / Promociones -->
+                <a href="#ofertas" class="hover:text-accentYellow transition-colors flex items-center gap-1.5 text-accentRed animate-pulse">
+                    <i class="fa-solid fa-tag"></i> Ofertas / Promociones
+                </a>
+                
                 <!-- Botón "Catálogo" que aparece únicamente en la sección Contacto -->
-                <a href="#catalogo" id="nav-catalogo-contacto" class="hidden text-accentYellow hover:text-yellow-400 transition-colors flex items-center gap-1.5 animate-pulse">
+                <a href="#catalogo" id="nav-catalogo-contacto" class="hidden text-accentYellow hover:text-yellow-400 transition-colors items-center gap-1.5 animate-pulse">
                     <i class="fa-solid fa-box-open"></i> Catálogo
                 </a>
 
                 <a href="sobre-mi.html" class="hover:text-accentYellow transition-colors">Sobre Mí</a>
             </nav>
             
-            <!-- Columna Derecha: Estado Admin -->
-            <div class="flex-1 flex items-center justify-end">
+            <!-- Derecha: Estado Admin / Botón Hamburguesa -->
+            <div class="w-1/3 flex items-center justify-end gap-3">
                 <div id="auth-container" class="flex items-center gap-3">
                     <!-- Se llena dinámicamente al iniciar sesión como admin -->
                 </div>
+
+                <!-- Botón Menú Hamburguesa (Solo en celulares) -->
+                <button onclick="toggleMenuMobile()" class="md:hidden text-slate-200 hover:text-white text-xl p-2 focus:outline-none">
+                    <i id="icono-menu" class="fa-solid fa-bars"></i>
+                </button>
             </div>
+        </div>
+
+        <!-- Menú Desplegable Mobile (Oculto por defecto) -->
+        <div id="menu-mobile" class="hidden md:hidden bg-cardBg border-b border-slate-800 px-6 py-4 space-y-3">
+            <a href="#inicio" onclick="toggleMenuMobile()" class="block text-slate-200 hover:text-accentYellow font-bold text-sm py-2">Inicio</a>
+            <a href="#ofertas" onclick="toggleMenuMobile()" class="block text-accentRed hover:text-accentYellow font-bold text-sm py-2">Ofertas / Promociones</a>
+            <a href="#catalogo" onclick="toggleMenuMobile()" class="block text-slate-200 hover:text-accentYellow font-bold text-sm py-2">Catálogo</a>
+            <a href="sobre-mi.html" onclick="toggleMenuMobile()" class="block text-slate-200 hover:text-accentYellow font-bold text-sm py-2">Sobre Mí</a>
         </div>
     </header>
 
-    <!-- Contenido Principal -->
+    <!-- SECCIÓN: INICIO -->
+    <section id="inicio" class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] px-4 sm:px-6 lg:px-8 py-32 text-center space-y-6 scroll-mt-24 overflow-hidden my-0">
+        <div class="absolute inset-0 bg-cover bg-center filter blur-[3px] scale-105 z-0" style="background-image: url('img/Fondo.jfif');"></div>
+        <div class="absolute inset-0 bg-black/60 z-10"></div>
+
+        <div class="relative z-20 max-w-4xl mx-auto space-y-6">
+            <div class="inline-flex items-center gap-2 bg-accentRed/10 border border-accentRed/30 text-accentRed text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mx-auto">
+                <i class="fa-solid fa-gears"></i> Especialistas en Repuestos y Accesorios
+            </div>
+            <h2 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight drop-shadow-lg">
+                Encontrá el repuesto ideal para <span class="text-accentYellow">potenciar tu moto</span>
+            </h2>
+            <p class="text-slate-200 text-base sm:text-lg max-w-2xl mx-auto bg-darkBg/60 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg border border-slate-800/50">
+               Componentes de motor, transmisión, frenos y electricidad seleccionados con calidad garantizada. Atención directa y asesoramiento sin vueltas.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 pt-2">
+                <a href="#catalogo" class="bg-accentRed hover:bg-red-600 text-accentYellow font-bold px-8 py-4 rounded-2xl transition-colors shadow-lg shadow-accentRed/30 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-box-open"></i> Ver Catálogo de Repuestos
+                </a>
+                <a href="#contacto" class="bg-cardBg/90 hover:bg-slate-800 border border-slate-700 text-white font-bold px-8 py-4 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-md">
+                    <i class="fa-solid fa-headset text-accentYellow"></i> Contactar con Asesor
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenido Principal Restante -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
         
-        <!-- SECCIÓN: INICIO -->
-        <section id="inicio" class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] px-4 sm:px-6 lg:px-8 py-28 text-center space-y-6 scroll-mt-24 overflow-hidden my-0">
-            <div class="absolute inset-0 bg-cover bg-center filter blur-[3px] scale-105 z-0" style="background-image: url('img/Fondo.jfif');"></div>
-
-            <div class="relative z-20 max-w-4xl mx-auto space-y-6">
-                <div class="inline-flex items-center gap-2 bg-accentRed/10 border border-accentRed/30 text-accentRed text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mx-auto">
-                    <i class="fa-solid fa-gears"></i> Especialistas en Repuestos y Accesorios
-                </div>
-                <h2 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight drop-shadow-lg">
-                    Encontrá el repuesto ideal para <span class="text-accentYellow">potenciar tu moto</span>
-                </h2>
-                <p class="text-slate-200 text-base sm:text-lg max-w-2xl mx-auto bg-darkBg/60 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg border border-slate-800/50">
-                   Componentes de motor, transmisión, frenos y electricidad seleccionados con calidad garantizada. Atención directa y asesoramiento sin vueltas.
-                </p>
-                <div class="flex flex-wrap justify-center gap-4 pt-2">
-                    <a href="#catalogo" class="bg-accentRed hover:bg-red-600 text-accentYellow font-bold px-8 py-4 rounded-2xl transition-colors shadow-lg shadow-accentRed/30 flex items-center gap-2 text-sm">
-                        <i class="fa-solid fa-box-open"></i> Ver Catálogo de Repuestos
-                    </a>
-                    <a href="#contacto" class="bg-cardBg/90 hover:bg-slate-800 border border-slate-700 text-white font-bold px-8 py-4 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-md">
-                        <i class="fa-solid fa-headset text-accentYellow"></i> Contactar con Asesor
-                    </a>
-                </div>
-            </div>
-        </section>
-
         <!-- SECCIÓN: CATÁLOGO Y BUSCADOR -->
         <section id="catalogo" class="scroll-mt-24 space-y-8">
             
@@ -122,9 +141,8 @@
                         <input type="text" id="input-buscar" placeholder="Buscar por nombre, modelo o categoría..." oninput="filtrarRepuestos()" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accentRed text-sm">
                     </div>
                     
-                    <!-- Grupo de Filtros Juntos (Orden, Precios y Botón Admin) -->
+                    <!-- Grupo de Filtros Juntos -->
                     <div class="flex items-center gap-3 flex-wrap">
-                        <!-- Selector de Ordenamiento -->
                         <div>
                             <select id="select-orden" onchange="filtrarRepuestos()" class="bg-slate-900 border border-slate-700 text-slate-300 text-xs font-semibold px-4 py-3 rounded-xl focus:outline-none focus:border-accentRed cursor-pointer">
                                 <option value="recientes">Más recientes</option>
@@ -133,11 +151,11 @@
                             </select>
                         </div>
 
-                        <!-- Filtro por Rango de Precios Juntos y Centrados -->
+                        <!-- Filtro por Rango de Precios -->
                         <div class="flex items-center gap-2">
-                            <input type="number" id="precio-min" placeholder="Mín $" oninput="filtrarRepuestos()" class="w-24 bg-slate-900 border border-slate-700 rounded-xl px-2 py-3 text-xs text-white text-center focus:outline-none focus:border-accentRed placeholder:text-center">
+                            <input type="number" id="precio-min" min="0" step="5000" placeholder="Mín $" oninput="filtrarRepuestos()" class="w-24 bg-slate-900 border border-slate-700 rounded-xl px-2 py-3 text-xs text-white text-center focus:outline-none focus:border-accentRed placeholder:text-center">
                             <span class="text-slate-500 font-bold">-</span>
-                            <input type="number" id="precio-max" placeholder="Máx $" oninput="filtrarRepuestos()" class="w-24 bg-slate-900 border border-slate-700 rounded-xl px-2 py-3 text-xs text-white text-center focus:outline-none focus:border-accentRed placeholder:text-center">
+                            <input type="number" id="precio-max" min="0" step="5000" placeholder="Máx $" oninput="filtrarRepuestos()" class="w-24 bg-slate-900 border border-slate-700 rounded-xl px-2 py-3 text-xs text-white text-center focus:outline-none focus:border-accentRed placeholder:text-center">
                         </div>
 
                         <!-- Botón Administrador (Integrado) -->
@@ -150,19 +168,29 @@
                 </div>
 
                 <!-- Botones de Filtro por Categoría -->
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-2 scrollbar-none border-t border-slate-800/60 justify-start sm:justify-center">
-                    <button onclick="filtrarPorCategoria('Todos')" class="cat-btn bg-accentRed text-white px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shadow">Todos</button>
-                    <button onclick="filtrarPorCategoria('Motor')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Motor</button>
-                    <button onclick="filtrarPorCategoria('Tren Delantero')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Tren Delantero</button>
-                    <button onclick="filtrarPorCategoria('Tren Trasero')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Tren Trasero</button>
-                    <button onclick="filtrarPorCategoria('Transmisión')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Transmisión</button>
-                    <button onclick="filtrarPorCategoria('Frenos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Frenos</button>
-                    <button onclick="filtrarPorCategoria('Electricidad')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Electricidad</button>
-                    <button onclick="filtrarPorCategoria('Plásticos y Carenados')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors">Plásticos y Carenados</button>
+                <div class="relative w-full overflow-hidden border-t border-slate-800/60 pt-3 pb-1">
+                    <div class="flex items-center gap-2 overflow-x-auto pb-2 pl-4 sm:justify-start">
+                        <button onclick="filtrarPorCategoria('Todos')" class="cat-btn bg-accentRed text-white px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shadow shrink-0">Todos</button>
+                        <button onclick="filtrarPorCategoria('baterias')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Baterías</button>
+                        <button onclick="filtrarPorCategoria('cables')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Cables</button>
+                        <button onclick="filtrarPorCategoria('camaras')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Cámaras</button>
+                        <button onclick="filtrarPorCategoria('cubiertas')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Cubiertas</button>
+                        <button onclick="filtrarPorCategoria('cascos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Cascos</button>
+                        <button onclick="filtrarPorCategoria('lubricantes')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Lubricantes</button>
+                        <button onclick="filtrarPorCategoria('fundas de asientos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Fundas de asientos</button>
+                        <button onclick="filtrarPorCategoria('kit de plásticos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Kit de plásticos</button>
+                        <button onclick="filtrarPorCategoria('estética')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Estética</button>
+                        <button onclick="filtrarPorCategoria('transmiciones')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Transmiciones</button>
+                        <button onclick="filtrarPorCategoria('repuestos eléctricos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Repuestos eléctricos</button>
+                        <button onclick="filtrarPorCategoria('repuestos varios')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Repuestos varios</button>
+                        <button onclick="filtrarPorCategoria('cinta de frenos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Cinta de frenos</button>
+                        <button onclick="filtrarPorCategoria('espejos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Espejos</button>
+                        <button onclick="filtrarPorCategoria('asientos')" class="cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0">Asientos</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- PANEL DE ALERTA DE STOCK (Solo Administrador) -->
+            <!-- PANEL DE ALERTA DE STOCK -->
             <div id="admin-stock-alert" class="max-w-6xl mx-auto hidden bg-cardBg border border-amber-500/30 p-4 rounded-2xl flex items-center justify-between shadow-lg">
                 <div class="flex items-center gap-3">
                     <div class="bg-amber-500/20 text-amber-400 p-2.5 rounded-xl border border-amber-500/30">
@@ -196,6 +224,31 @@
 
         </section>
 
+        <!-- SECCIÓN: OFERTAS Y PROMOCIONES -->
+        <section id="ofertas" class="scroll-mt-24 space-y-8 my-16">
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center gap-2 bg-accentRed/10 border border-accentRed/30 text-accentRed text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mx-auto">
+                    <i class="fa-solid fa-fire"></i> ¡Aprovechá por tiempo limitado!
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    Ofertas y Promociones en <span class="text-accentYellow">REP MOTOS</span>
+                </h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Componentes y accesorios seleccionados al mejor precio del mercado.</p>
+            </div>
+
+            <!-- Botón de Administrador para Crear Oferta / Promo -->
+            <div id="admin-ofertas-actions" class="max-w-6xl mx-auto hidden flex justify-end">
+                <button onclick="abrirModalAgregarOferta()" class="bg-accentRed hover:bg-red-600 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-lg shadow-accentRed/20">
+                    <i class="fa-solid fa-plus"></i> Nueva Oferta / Promo
+                </button>
+            </div>
+
+            <!-- Grilla de Ofertas -->
+            <div id="grid-ofertas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                <!-- Se cargan dinámicamente con JavaScript -->
+            </div>
+        </section>
+
         <!-- SECCIÓN: CONTACTO -->
         <section id="contacto" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24 pt-4">
             <div class="bg-cardBg border border-slate-800 p-6 sm:p-10 rounded-3xl shadow-xl">
@@ -206,7 +259,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
-                    <!-- Datos de Contacto (Izquierda) -->
+                    <!-- Datos de Contacto -->
                     <div class="lg:col-span-5 space-y-4">
                         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4">
                             <div class="w-12 h-12 bg-amber-500/10 text-accentYellow rounded-xl flex items-center justify-center text-xl">
@@ -214,7 +267,7 @@
                             </div>
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Asesor / Propietario</span>
-                                <h4 class="text-white font-bold text-base">Darío Ochoa</h4>
+                                <h4 class="text-white font-bold text-base">Darío</h4>
                             </div>
                         </div>
 
@@ -224,33 +277,23 @@
                             </div>
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Teléfono / WhatsApp</span>
-                                <a href="https://wa.me/5493525634781" target="_blank" class="text-white font-bold text-sm sm:text-base hover:text-emerald-400 transition-colors">+54 9 3525-634781</a>
+                                <a href="https://wa.me/5493525615244" target="_blank" class="text-white font-bold text-sm sm:text-base hover:text-emerald-400 transition-colors">+54 9 3525-615244</a>
                             </div>
                         </div>
 
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4">
-                            <div class="w-12 h-12 bg-accentRed/10 text-accentRed rounded-xl flex items-center justify-center text-xl">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-                            <div>
-                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Correo Electrónico</span>
-                                <span class="text-white font-bold text-xs sm:text-sm">contacto@ochoamotos.com</span>
-                            </div>
-                        </div>
-
-                        <!-- TARJETA: UBICACIÓN / GOOGLE MAPS -->
-                        <a href="https://www.google.com/maps/search/?api=1&query=-30.981911,-64.088371" target="_blank" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 p-4 rounded-2xl flex items-center gap-4 transition-all group block">
+                        <!-- TARJETA: UBICACIÓN / GOOGLE MAPS (Sarmiento 508) -->
+                        <a href="https://www.google.com/maps/place/Sarmiento+508,+X5220+Jesus+Mar%C3%ADa,+C%C3%B3rdoba/@-30.9820042,-64.0892294,19z/data=!3m1!4b1!4m10!1m2!2m1!1scalle+sarmiento+508+jesus+!3m6!1s0x94326397588cedb3:0x427a8135d30d89a0!8m2!3d-30.9820054!4d-64.0885857!15sChljYWxsZSBzYXJtaWVudG8gNTA4IGplc3VzkgERY29tcG91bmRfYnVpbGRpbmfgAQA!16s%2Fg%2F11hz290yxp?entry=ttu" target="_blank" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 p-4 rounded-2xl flex items-center gap-4 transition-all group block">
                             <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
                                 <i class="fa-solid fa-location-dot"></i>
                             </div>
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Encontranos en el local</span>
-                                <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-accentYellow transition-colors">C. J Alberdi, Jesús María</h4>
+                                <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-accentYellow transition-colors">Sarmiento 508, Jesús María</h4>
                             </div>
                         </a>
                     </div>
 
-                    <!-- Formulario de Consulta (Derecha) -->
+                    <!-- Formulario de Consulta -->
                     <div class="lg:col-span-7 bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-2xl">
                         <form onsubmit="enviarConsultaWeb(event)" class="space-y-4">
                             <div>
@@ -258,12 +301,8 @@
                                 <input type="text" id="consulta-nombre" required placeholder="Ej. Juan Pérez" class="w-full bg-darkBg border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accentRed text-sm">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Correo electrónico</label>
-                                <input type="email" id="consulta-email" required placeholder="correo@gmail.com" class="w-full bg-darkBg border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accentRed text-sm">
-                            </div>
-                            <div>
                                 <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Repuesto de interés / Consulta</label>
-                                <textarea id="consulta-mensaje" rows="3" required placeholder="Hola, me interesa el repuesto..." class="w-full bg-darkBg border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accentRed text-sm"></textarea>
+                                <textarea id="consulta-mensaje" rows="4" required placeholder="Hola, me interesa el repuesto..." class="w-full bg-darkBg border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accentRed text-sm"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-accentRed hover:bg-red-600 text-accentYellow font-bold py-3.5 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-accentRed/20">
                                 <i class="fa-solid fa-paper-plane text-xs"></i> Enviar Consulta
@@ -292,15 +331,23 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoría</label>
-                        <select id="rep-categoria" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                        <select id="rep-categoria" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm max-h-60 overflow-y-auto">
                             <option value="" disabled selected>Seleccioná una categoría</option>
-                            <option value="Motor">Motor</option>
-                            <option value="Tren Delantero">Tren Delantero</option>
-                            <option value="Tren Trasero">Tren Trasero</option>
-                            <option value="Transmisión">Transmisión</option>
-                            <option value="Frenos">Frenos</option>
-                            <option value="Electricidad">Electricidad</option>
-                            <option value="Plásticos y Carenados">Plásticos y Carenados</option>
+                            <option value="baterias">baterias</option>
+                            <option value="cables">cables</option>
+                            <option value="camaras">camaras</option>
+                            <option value="cubiertas">cubiertas</option>
+                            <option value="cascos">cascos</option>
+                            <option value="lubricantes">lubricantes</option>
+                            <option value="fundas de asientos">fundas de asientos</option>
+                            <option value="kit de plásticos">kit de plásticos</option>
+                            <option value="estética">estética</option>
+                            <option value="transmiciones">transmiciones</option>
+                            <option value="repuestos eléctricos">repuestos eléctricos</option>
+                            <option value="repuestos varios">repuestos varios</option>
+                            <option value="cinta de frenos">cinta de frenos</option>
+                            <option value="espejos">espejos</option>
+                            <option value="asientos">asientos</option>
                         </select>
                     </div>
                     <div>
@@ -387,6 +434,47 @@
         </div>
     </div>
 
+    <!-- VISTA DE DETALLE DE OFERTA / PROMOCIÓN -->
+    <div id="detalle-oferta-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-darkBg/95 backdrop-blur-xl p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <div class="bg-cardBg border border-slate-800 rounded-3xl max-w-6xl w-full relative shadow-2xl overflow-hidden my-auto">
+            
+            <button onclick="closeDetalleOfertaModal()" class="absolute top-6 right-6 z-30 bg-slate-800/80 hover:bg-accentRed text-white px-4 py-2.5 rounded-full flex items-center gap-2 text-xs font-bold transition-colors shadow-lg border border-slate-700">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Catálogo
+            </button>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[550px]">
+                
+                <div class="lg:col-span-7 bg-slate-950 relative flex items-center justify-center p-6 lg:p-10 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
+                    <img id="detalle-oferta-img" src="" alt="Oferta" class="max-h-[450px] w-full object-contain drop-shadow-2xl">
+                    <span class="absolute top-6 left-6 z-20 bg-accentRed text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider shadow">¡Oferta Especial!</span>
+                </div>
+
+                <div class="lg:col-span-5 p-8 lg:p-10 flex flex-col justify-between space-y-8">
+                    <div class="space-y-4">
+                        <div id="detalle-oferta-stock" class="inline-block text-xs font-semibold px-3 py-1 rounded-md">Stock</div>
+                        <h3 id="detalle-oferta-nombre" class="text-3xl font-black text-white leading-tight">Nombre de la Oferta</h3>
+                        <div class="flex items-center gap-4">
+                            <p id="detalle-oferta-precio-anterior" class="text-lg text-slate-400 line-through">$0.00</p>
+                            <p id="detalle-oferta-precio" class="text-3xl font-black text-accentYellow">$0.00</p>
+                        </div>
+                        <hr class="border-slate-800 my-4">
+                        <div class="space-y-2">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Descripción de la Promoción</span>
+                            <p id="detalle-oferta-descripcion" class="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">Detalles...</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 pt-4">
+                        <a id="detalle-oferta-whatsapp-btn" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-6 rounded-2xl transition-colors text-sm flex items-center justify-center gap-3 shadow-xl shadow-emerald-900/20">
+                            <i class="fa-brands fa-whatsapp text-xl"></i> Consultar Promoción por WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: EDITAR REPUESTO -->
     <div id="edit-repuesto-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
         <div class="bg-cardBg border border-slate-800 p-6 sm:p-8 rounded-2xl max-w-2xl w-full relative shadow-2xl my-8">
@@ -403,15 +491,23 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoría</label>
-                        <select id="edit-rep-categoria" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                        <select id="edit-rep-categoria" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm max-h-60 overflow-y-auto">
                             <option value="" disabled selected>Seleccioná una categoría</option>
-                            <option value="Motor">Motor</option>
-                            <option value="Tren Delantero">Tren Delantero</option>
-                            <option value="Tren Trasero">Tren Trasero</option>
-                            <option value="Transmisión">Transmisión</option>
-                            <option value="Frenos">Frenos</option>
-                            <option value="Electricidad">Electricidad</option>
-                            <option value="Plásticos y Carenados">Plásticos y Carenados</option>
+                            <option value="baterias">baterias</option>
+                            <option value="cables">cables</option>
+                            <option value="camaras">camaras</option>
+                            <option value="cubiertas">cubiertas</option>
+                            <option value="cascos">cascos</option>
+                            <option value="lubricantes">lubricantes</option>
+                            <option value="fundas de asientos">fundas de asientos</option>
+                            <option value="kit de plásticos">kit de plásticos</option>
+                            <option value="estética">estética</option>
+                            <option value="transmiciones">transmiciones</option>
+                            <option value="repuestos eléctricos">repuestos eléctricos</option>
+                            <option value="repuestos varios">repuestos varios</option>
+                            <option value="cinta de frenos">cinta de frenos</option>
+                            <option value="espejos">espejos</option>
+                            <option value="asientos">asientos</option>
                         </select>
                     </div>
                     <div>
@@ -420,14 +516,73 @@
                     </div>
                 </div>
                 <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Precio ($ ARS)</label>
-                        <input type="text" id="edit-rep-precio" required oninput="this.value = this.value.replace(/[^0-9.,]/g, '')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Precio ($ ARS)</label>
+                    <input type="text" id="edit-rep-precio" required oninput="this.value = this.value.replace(/[^0-9.,]/g, '')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Descripción</label>
                     <textarea id="edit-rep-descripcion" rows="6" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-accentRed hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors text-sm">Actualizar Repuesto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITAR OFERTA / PROMOCIÓN -->
+    <div id="edit-oferta-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-cardBg border border-slate-800 p-6 sm:p-8 rounded-2xl max-w-2xl w-full relative shadow-2xl my-8">
+            <button onclick="closeEditOfertaModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-1">Editar Oferta / Promoción</h3>
+            <p class="text-slate-400 text-sm mb-6">Actualizá los datos, el precio o el stock de la promoción.</p>
+            
+            <form id="edit-oferta-form" onsubmit="handleEditarOferta(event)" class="space-y-4">
+                <input type="hidden" id="edit-oferta-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Nombre de la Oferta</label>
+                    <input type="text" id="edit-oferta-nombre" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoría</label>
+                        <select id="edit-oferta-categoria" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                            <option value="" disabled selected>Seleccioná una categoría</option>
+                            <option value="baterias">baterias</option>
+                            <option value="cables">cables</option>
+                            <option value="camaras">camaras</option>
+                            <option value="cubiertas">cubiertas</option>
+                            <option value="cascos">cascos</option>
+                            <option value="lubricantes">lubricantes</option>
+                            <option value="fundas de asientos">fundas de asientos</option>
+                            <option value="kit de plásticos">kit de plásticos</option>
+                            <option value="estética">estética</option>
+                            <option value="transmiciones">transmiciones</option>
+                            <option value="repuestos eléctricos">repuestos eléctricos</option>
+                            <option value="repuestos varios">repuestos varios</option>
+                            <option value="cinta de frenos">cinta de frenos</option>
+                            <option value="espejos">espejos</option>
+                            <option value="asientos">asientos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Stock Disponible</label>
+                        <input type="number" id="edit-oferta-stock" required min="0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Precio Oferta ($ ARS)</label>
+                        <input type="text" id="edit-oferta-precio" required oninput="this.value = this.value.replace(/[^0-9.,]/g, '')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Precio Anterior (Opcional)</label>
+                        <input type="text" id="edit-oferta-precio-anterior" placeholder="Ej: 50.000" oninput="this.value = this.value.replace(/[^0-9.,]/g, '')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Descripción</label>
+                    <textarea id="edit-oferta-descripcion" rows="5" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-accentRed hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors text-sm">Actualizar Oferta</button>
             </form>
         </div>
     </div>
@@ -476,6 +631,77 @@
                 <button type="submit" class="w-full bg-accentRed hover:bg-red-600 text-accentYellow font-bold py-3.5 rounded-xl transition-colors text-sm shadow-lg shadow-accentRed/20">
                     Ingresar al Sistema
                 </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: AGREGAR OFERTA / PROMOCIÓN -->
+    <div id="admin-oferta-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-cardBg border border-slate-800 p-6 sm:p-8 rounded-2xl max-w-lg w-full relative shadow-2xl my-8">
+            <button onclick="closeAdminOfertaModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-1">Nueva Oferta / Promoción</h3>
+            <p class="text-slate-400 text-sm mb-6">Cargá un producto en liquidación o promoción especial.</p>
+            
+            <form id="oferta-form" onsubmit="handleAgregarOferta(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Nombre de la Oferta</label>
+                    <input type="text" id="oferta-nombre" placeholder="Ej: Kit de Transmisión en Oferta" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoría</label>
+                        <select id="oferta-categoria" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                            <option value="" disabled selected>Seleccioná una categoría</option>
+                            <option value="baterias">baterias</option>
+                            <option value="cables">cables</option>
+                            <option value="camaras">camaras</option>
+                            <option value="cubiertas">cubiertas</option>
+                            <option value="cascos">cascos</option>
+                            <option value="lubricantes">lubricantes</option>
+                            <option value="fundas de asientos">fundas de asientos</option>
+                            <option value="kit de plásticos">kit de plásticos</option>
+                            <option value="estética">estética</option>
+                            <option value="transmiciones">transmiciones</option>
+                            <option value="repuestos eléctricos">repuestos eléctricos</option>
+                            <option value="repuestos varios">repuestos varios</option>
+                            <option value="cinta de frenos">cinta de frenos</option>
+                            <option value="espejos">espejos</option>
+                            <option value="asientos">asientos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Stock Disponible</label>
+                        <input type="number" id="oferta-stock" min="0" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Precio Oferta ($ ARS)</label>
+                        <input type="text" id="oferta-precio" placeholder="Ej: 35.000" required oninput="this.value = this.value.replace(/[^0-9.,]/g, '')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Precio Anterior (Opcional)</label>
+                        <input type="text" id="oferta-precio-anterior" placeholder="Ej: 50.000" oninput="this.value = this.value.replace(/[^0-9.,]/g, '')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Descripción</label>
+                    <textarea id="oferta-descripcion" rows="3" placeholder="Detalles de la promo..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accentRed text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Imágenes de la Oferta</label>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="file" id="oferta-imagen-input" accept="image/*" multiple onchange="agregarArchivosOfertaNuevos(this)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-400 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-accentRed file:text-white hover:file:bg-red-600">
+                    </div>
+                    
+                    <!-- Zona de Drag & Drop para Ofertas -->
+                    <div id="drop-zone-oferta" ondragover="event.preventDefault(); this.classList.add('border-accentRed');" ondragleave="this.classList.remove('border-accentRed');" ondrop="manejarDropImagenOferta(event)" class="border-2 border-dashed border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center cursor-pointer transition-colors bg-slate-900/50">
+                        <p class="text-xs text-slate-400"><i class="fa-solid fa-cloud-arrow-up mr-1 text-accentYellow"></i> Arrastrá fotos aquí o pegalas con <span class="text-white font-bold">Ctrl + V</span></p>
+                    </div>
+
+                    <div id="vistas-previas-oferta-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3"></div>
+                </div>
+                <button type="submit" class="w-full bg-accentRed hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors text-sm">Publicar Oferta</button>
             </form>
         </div>
     </div>

@@ -7,7 +7,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let listaRepuestos = [];
+let listaOfertas = [];
 let archivosSeleccionadosParaSubir = [];
+let archivosOfertaParaSubir = [];
 let indicePrincipalSeleccionada = 0; // Índice de la foto marcada con la estrella
 let fotosActualesModal = [];
 let indiceFotoActual = 0;
@@ -39,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     cargarRepuestos();
+    cargarOfertas();
 });
 
 // ==========================================
@@ -58,6 +61,25 @@ async function cargarRepuestos() {
     listaRepuestos = data || [];
     renderRepuestos(listaRepuestos);
     actualizarPanelStock(listaRepuestos);
+    
+    // Detectar enlace directo por producto (?p=id) al finalizar la carga
+    verificarEnlaceDirecto();
+}
+
+// ==========================================
+// DETECTAR ENLACE DIRECTO POR PRODUCTO (?p=id)
+// ==========================================
+function verificarEnlaceDirecto() {
+    const params = new URLSearchParams(window.location.search);
+    const productoId = params.get('p');
+    
+    if (productoId) {
+        const idNumerico = parseInt(productoId);
+        const repExiste = listaRepuestos.find(r => r.id === idNumerico);
+        if (repExiste) {
+            abrirDetalleRepuesto(idNumerico);
+        }
+    }
 }
 
 function renderRepuestos(repuestos) {
@@ -90,7 +112,7 @@ function renderRepuestos(repuestos) {
 
     repuestosPagina.forEach(rep => {
         const imagenesArray = rep.imagen ? rep.imagen.split(',').map(img => img.trim()).filter(img => img !== '') : [];
-        const imagenPrincipal = imagenesArray.length > 0 ? imagenesArray[0] : 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+        const imagenPrincipal = imagenesArray.length > 0 ? imagenesArray[0] : 'img/sin-imagen.png';
 
         const sinStock = rep.stock === 0;
         const stockBajo = rep.stock === 1 || (rep.stock <= 2 && rep.stock > 0);
@@ -109,7 +131,7 @@ function renderRepuestos(repuestos) {
 
         card.innerHTML = `
             <div class="relative h-48 bg-slate-900 overflow-hidden">
-                <img src="${imagenPrincipal}" alt="${rep.nombre}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <img src="${imagenPrincipal}" alt="${rep.nombre}" onerror="this.src='img/sin-imagen.png'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                 <span class="absolute top-3 left-3 bg-darkBg/80 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full border border-slate-700">
                     ${rep.categoria}
                 </span>
@@ -146,7 +168,6 @@ function renderRepuestos(repuestos) {
         grid.appendChild(card);
     });
 
-    // Gestionar la visibilidad y estado de los botones de paginación
     if (paginacionContainer) {
         if (totalPaginas > 1) {
             paginacionContainer.classList.remove('hidden');
@@ -168,11 +189,11 @@ function cambiarPagina(direccion) {
     if (paginaActual > totalPaginas) paginaActual = totalPaginas;
 
     renderRepuestos(repuestosUltimoFiltro);
-    window.scrollTo({ top: 400, behavior: 'smooth' }); // Sube suavemente hacia el catálogo
+    window.scrollTo({ top: 400, behavior: 'smooth' });
 }
 
 function filtrarRepuestos() {
-    paginaActual = 1; // Reiniciar a página 1 al filtrar
+    paginaActual = 1;
     const texto = document.getElementById('input-buscar').value.toLowerCase();
     const orden = document.getElementById('select-orden') ? document.getElementById('select-orden').value : 'recientes';
     
@@ -223,12 +244,16 @@ function filtrarRepuestos() {
 }
 
 function filtrarPorCategoria(categoria) {
-    paginaActual = 1; // Reiniciar a página 1 al cambiar categoría
+    paginaActual = 1;
+    
     document.querySelectorAll('.cat-btn').forEach(btn => {
-        if (btn.textContent.trim() === categoria) {
-            btn.className = "cat-btn bg-accentRed text-white px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shadow";
+        const textoBoton = btn.textContent.trim().toLowerCase();
+        const catBuscada = categoria.trim().toLowerCase();
+        
+        if (textoBoton === catBuscada || (catBuscada === 'todos' && textoBoton === 'todos')) {
+            btn.className = "cat-btn bg-accentRed text-white px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shadow shrink-0";
         } else {
-            btn.className = "cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors";
+            btn.className = "cat-btn bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0";
         }
     });
 
@@ -241,7 +266,7 @@ function filtrarPorCategoria(categoria) {
     if (categoria === 'Todos') {
         filtrados = [...listaRepuestos];
     } else {
-        filtrados = listaRepuestos.filter(r => r.categoria.toLowerCase() === categoria.toLowerCase());
+        filtrados = listaRepuestos.filter(r => r.categoria && r.categoria.toLowerCase() === categoria.toLowerCase());
     }
 
     filtrados.sort((a, b) => {
@@ -263,7 +288,290 @@ function filtrarPorCategoria(categoria) {
 }
 
 // ==========================================
-// CARRUSEL Y MODAL DE DETALLES
+// GESTIÓN DE OFERTAS Y PROMOCIONES
+// ==========================================
+async function cargarOfertas() {
+    const { data, error } = await _supabase
+        .from('ofertas')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error("Error al cargar ofertas:", error.message);
+        return;
+    }
+
+    listaOfertas = data || [];
+    renderOfertas(listaOfertas);
+}
+
+function renderOfertas(ofertas) {
+    const grid = document.getElementById('grid-ofertas');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    const esAdmin = !document.getElementById('admin-actions-bar').classList.contains('hidden');
+
+    if (ofertas.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-8 text-slate-500 text-sm">
+                No hay ofertas vigentes por el momento.
+            </div>`;
+        return;
+    }
+
+    ofertas.forEach(o => {
+        const imagenesArray = o.imagen ? o.imagen.split(',').map(img => img.trim()).filter(img => img !== '') : [];
+        const imagenPrincipal = imagenesArray.length > 0 ? imagenesArray[0] : 'img/sin-imagen.png';
+
+        const card = document.createElement('div');
+        card.className = "bg-cardBg border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between group transition-all hover:border-slate-700";
+
+        card.innerHTML = `
+            <div class="relative h-48 bg-slate-900 overflow-hidden">
+                <span class="absolute top-3 left-3 z-10 bg-accentRed text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow">¡Oferta!</span>
+                <img src="${imagenPrincipal}" alt="${o.nombre}" onerror="this.src='img/sin-imagen.png'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            </div>
+
+            <div class="p-5 flex flex-col flex-grow justify-between space-y-4">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            Stock: ${o.stock}
+                        </span>
+                        <div class="text-right">
+                            ${o.precio_anterior ? `<span class="text-xs text-slate-400 line-through block">$${formatearPrecio(o.precio_anterior)}</span>` : ''}
+                            <span class="text-xl font-black text-accentYellow">$${formatearPrecio(o.precio)}</span>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white text-base leading-snug line-clamp-2">${o.nombre}</h3>
+                </div>
+
+                <div class="pt-2 flex items-center gap-2">
+                    <button onclick="abrirDetalleOferta(${o.id})" class="flex-grow bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2.5 px-3 rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-eye text-accentYellow"></i> Ver Detalles
+                    </button>
+                    
+                    ${esAdmin ? `
+                        <button onclick="abrirModalEditarOferta(${o.id})" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2.5 rounded-xl transition-colors" title="Editar Oferta">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </button>
+                        <button onclick="eliminarOferta(${o.id})" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2.5 rounded-xl transition-colors" title="Eliminar Oferta">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function abrirDetalleOferta(id) {
+    const oferta = listaOfertas.find(o => o.id === id);
+    if (!oferta) return;
+
+    const imagenesArray = oferta.imagen ? oferta.imagen.split(',').map(img => img.trim()).filter(img => img !== '') : [];
+    const imagenPrincipal = imagenesArray.length > 0 ? imagenesArray[0] : 'img/sin-imagen.png';
+
+    document.getElementById('detalle-oferta-img').src = imagenPrincipal;
+    document.getElementById('detalle-oferta-nombre').textContent = oferta.nombre;
+    document.getElementById('detalle-oferta-precio').textContent = `$${formatearPrecio(oferta.precio)}`;
+    
+    const precioAntEl = document.getElementById('detalle-oferta-precio-anterior');
+    if (oferta.precio_anterior) {
+        precioAntEl.textContent = `$${formatearPrecio(oferta.precio_anterior)}`;
+        precioAntEl.classList.remove('hidden');
+    } else {
+        precioAntEl.classList.add('hidden');
+    }
+
+    document.getElementById('detalle-oferta-descripcion').textContent = oferta.descripcion || 'Sin descripción disponible.';
+
+    const stockBadge = document.getElementById('detalle-oferta-stock');
+    stockBadge.textContent = `Stock disponible: ${oferta.stock}`;
+    stockBadge.className = `inline-block text-xs font-semibold px-2.5 py-0.5 rounded-md ${oferta.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`;
+
+    const mensajeWp = encodeURIComponent(`Hola Darío! Vi la oferta de "${oferta.nombre}" a $${formatearPrecio(oferta.precio)} en la web y me interesa consultar stock.`);
+    document.getElementById('detalle-oferta-whatsapp-btn').href = `https://wa.me/5493525615244?text=${mensajeWp}`;
+
+    document.getElementById('detalle-oferta-modal').classList.remove('hidden');
+}
+
+function closeDetalleOfertaModal() {
+    document.getElementById('detalle-oferta-modal').classList.add('hidden');
+}
+
+function abrirModalAgregarOferta() {
+    archivosOfertaParaSubir = [];
+    const container = document.getElementById('vistas-previas-oferta-container');
+    if(container) container.innerHTML = '';
+    document.getElementById('oferta-form').reset();
+    document.getElementById('admin-oferta-modal').classList.remove('hidden');
+}
+
+function closeAdminOfertaModal() {
+    document.getElementById('admin-oferta-modal').classList.add('hidden');
+}
+
+// ==========================================
+// FUNCIONES DE EDICIÓN DE OFERTAS
+// ==========================================
+function abrirModalEditarOferta(id) {
+    const oferta = listaOfertas.find(o => o.id === id);
+    if (!oferta) return;
+
+    document.getElementById('edit-oferta-id').value = oferta.id;
+    document.getElementById('edit-oferta-nombre').value = oferta.nombre;
+    document.getElementById('edit-oferta-categoria').value = oferta.categoria;
+    document.getElementById('edit-oferta-stock').value = oferta.stock;
+    document.getElementById('edit-oferta-precio').value = oferta.precio;
+    document.getElementById('edit-oferta-precio-anterior').value = oferta.precio_anterior || '';
+    document.getElementById('edit-oferta-descripcion').value = oferta.descripcion || '';
+    
+    const modal = document.getElementById('edit-oferta-modal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeEditOfertaModal() {
+    const modal = document.getElementById('edit-oferta-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function handleEditarOferta(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-oferta-id').value;
+    const nombre = document.getElementById('edit-oferta-nombre').value.trim();
+    const categoria = document.getElementById('edit-oferta-categoria').value.trim();
+    const stock = parseInt(document.getElementById('edit-oferta-stock').value) || 0;
+    const precio = document.getElementById('edit-oferta-precio').value.trim();
+    const precio_anterior = document.getElementById('edit-oferta-precio-anterior').value.trim() || null;
+    const descripcion = document.getElementById('edit-oferta-descripcion').value.trim();
+
+    if (!id || !nombre || !categoria || isNaN(stock) || stock < 0 || !precio || !descripcion) {
+        mostrarToast("Completá todos los campos correctamente.", "error");
+        return;
+    }
+
+    const { error } = await _supabase.from('ofertas').update({
+        nombre, categoria, stock, precio, precio_anterior, descripcion
+    }).eq('id', id);
+
+    if (error) {
+        mostrarToast("Error al actualizar oferta: " + error.message, "error");
+        return;
+    }
+
+    closeEditOfertaModal();
+    mostrarToast("¡Oferta actualizada con éxito!", "success");
+    cargarOfertas();
+}
+
+function agregarArchivosOfertaNuevos(input) {
+    if (!input.files || input.files.length === 0) return;
+    for (let i = 0; i < input.files.length; i++) {
+        archivosOfertaParaSubir.push(input.files[i]);
+    }
+    input.value = '';
+    renderizarVistasPreviasOferta();
+}
+
+function manejarDropImagenOferta(e) {
+    e.preventDefault();
+    const dropZone = document.getElementById('drop-zone-oferta');
+    if (dropZone) dropZone.classList.remove('border-accentRed');
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+            const file = e.dataTransfer.files[i];
+            if (file.type.startsWith('image/')) {
+                archivosOfertaParaSubir.push(file);
+            }
+        }
+        renderizarVistasPreviasOferta();
+        mostrarToast("Imágenes de oferta agregadas", "success");
+    }
+}
+
+function renderizarVistasPreviasOferta() {
+    const container = document.getElementById('vistas-previas-oferta-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    archivosOfertaParaSubir.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const thumbDiv = document.createElement('div');
+            thumbDiv.className = "relative h-20 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden flex items-center justify-center shadow-md";
+            thumbDiv.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button" onclick="archivosOfertaParaSubir.splice(${index},1); renderizarVistasPreviasOferta();" class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow" title="Eliminar foto">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(thumbDiv);
+        }
+        reader.readAsDataURL(file);
+    });
+}
+
+async function handleAgregarOferta(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('oferta-nombre').value.trim();
+    const categoria = document.getElementById('oferta-categoria').value.trim();
+    const stock = parseInt(document.getElementById('oferta-stock').value) || 0;
+    const precio = document.getElementById('oferta-precio').value.trim();
+    const precio_anterior = document.getElementById('oferta-precio-anterior').value.trim() || null;
+    const descripcion = document.getElementById('oferta-descripcion').value.trim();
+
+    if (!nombre || !categoria || !precio || !descripcion || archivosOfertaParaSubir.length === 0) {
+        mostrarToast("Completá todos los campos y agregá al menos una foto.", "error");
+        return;
+    }
+
+    let urlsImagenes = [];
+    for (let i = 0; i < archivosOfertaParaSubir.length; i++) {
+        const file = archivosOfertaParaSubir[i];
+        const fileOptimizado = await comprimirImagen(file);
+        const fileName = `oferta_${Date.now()}_${i}_${fileOptimizado.name}`;
+        
+        const { error: uploadError } = await _supabase.storage.from('repuestos').upload(fileName, fileOptimizado);
+        if (uploadError) {
+            mostrarToast("Error al subir imagen: " + uploadError.message, "error");
+            return;
+        }
+
+        const { data: urlData } = _supabase.storage.from('repuestos').getPublicUrl(fileName);
+        urlsImagenes.push(urlData.publicUrl);
+    }
+
+    const { error: insertError } = await _supabase.from('ofertas').insert([{
+        nombre, categoria, stock, precio, precio_anterior, descripcion, imagen: urlsImagenes.join(',')
+    }]);
+
+    if (insertError) {
+        mostrarToast("Error al publicar oferta: " + insertError.message, "error");
+        return;
+    }
+
+    closeAdminOfertaModal();
+    mostrarToast("¡Oferta publicada con éxito!", "success");
+    cargarOfertas();
+}
+
+async function eliminarOferta(id) {
+    if (!confirm("¿Estás seguro de eliminar esta oferta?")) return;
+    const { error } = await _supabase.from('ofertas').delete().eq('id', id);
+    if (error) {
+        mostrarToast("Error al eliminar oferta", "error");
+        return;
+    }
+    mostrarToast("Oferta eliminada", "success");
+    cargarOfertas();
+}
+
+// ==========================================
+// CARRUSEL Y MODAL DE DETALLES DE REPUESTOS
 // ==========================================
 function abrirDetalleRepuesto(id) {
     const rep = listaRepuestos.find(r => r.id === id);
@@ -295,11 +603,12 @@ function abrirDetalleRepuesto(id) {
     stockBadge.className = `inline-block text-xs font-semibold px-2.5 py-0.5 rounded-md ${sinStock ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`;
 
     const mensajeWp = `Hola Darío! Me interesa consultar por el repuesto: *${rep.nombre}* (Precio: $${formatearPrecio(rep.precio)}). ¿Está disponible?`;
-    const numeroDestino = '5493525634781';
+    const numeroDestino = '5493525615244';
     document.getElementById('detalle-whatsapp-btn').href = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(mensajeWp)}`;
 
     document.getElementById('detalle-modal').classList.remove('hidden');
     actualizarOpenGraph(rep);
+    window.history.pushState({}, '', `?p=${id}`);
 }
 
 function actualizarImagenCarrusel() {
@@ -312,7 +621,7 @@ function actualizarImagenCarrusel() {
     if (fotosActualesModal.length > 0) {
         imgEl.src = fotosActualesModal[indiceFotoActual];
     } else {
-        imgEl.src = '';
+        imgEl.src = 'img/sin-imagen.png';
     }
 
     if (fotosActualesModal.length > 1) {
@@ -341,6 +650,54 @@ function cambiarFoto(direccion) {
 function closeDetalleModal() {
     document.getElementById('detalle-modal').classList.add('hidden');
     actualizarOpenGraph(null);
+    window.history.pushState({}, '', window.location.pathname);
+}
+
+// ==========================================
+// COMPRESIÓN Y REDIMENSIONAMIENTO AUTOMÁTICO DE IMÁGENES
+// ==========================================
+async function comprimirImagen(file, maxWidth = 1000, quality = 0.8) {
+    return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+            resolve(file);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        resolve(file);
+                        return;
+                    }
+                    const archivoComprimido = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+                    resolve(archivoComprimido);
+                }, 'image/jpeg', quality);
+            };
+        };
+    });
 }
 
 // ==========================================
@@ -566,6 +923,8 @@ async function handleLoginAdmin(e) {
 
 function activarModoAdmin() {
     document.getElementById('admin-actions-bar').classList.remove('hidden');
+    const adminOfertasActions = document.getElementById('admin-ofertas-actions');
+    if (adminOfertasActions) adminOfertasActions.classList.remove('hidden');
     
     const authContainer = document.getElementById('auth-container');
     if (authContainer) {
@@ -578,11 +937,14 @@ function activarModoAdmin() {
     }
     actualizarPanelStock(listaRepuestos);
     renderRepuestos(listaRepuestos);
+    renderOfertas(listaOfertas);
 }
 
 async function cerrarSesionAdmin() {
     await _supabase.auth.signOut();
     document.getElementById('admin-actions-bar').classList.add('hidden');
+    const adminOfertasActions = document.getElementById('admin-ofertas-actions');
+    if (adminOfertasActions) adminOfertasActions.classList.add('hidden');
     
     const authContainer = document.getElementById('auth-container');
     if (authContainer) {
@@ -591,19 +953,19 @@ async function cerrarSesionAdmin() {
     
     actualizarPanelStock(listaRepuestos);
     renderRepuestos(listaRepuestos);
+    renderOfertas(listaOfertas);
     mostrarToast("Sesión cerrada correctamente", "success");
 }
 
 function enviarConsultaWeb(e) {
     e.preventDefault();
     const nombre = document.getElementById('consulta-nombre').value.trim();
-    const email = document.getElementById('consulta-email').value.trim();
     const mensaje = document.getElementById('consulta-mensaje').value.trim();
 
-    const textoWp = `Hola Darío! Te escribo desde la web de Rep Motos.%0A%0A*Nombre:* ${nombre}%0A*Correo:* ${email}%0A*Consulta:* ${mensaje}`;
-    const numeroDestino = '5493525634781';
+    const textoWp = `Hola Darío! Te escribo desde la web de Rep Motos.\n\n*Nombre:* ${nombre}\n*Consulta:* ${mensaje}`;
+    const numeroDestino = '5493525615244';
 
-    window.open(`https://wa.me/${numeroDestino}?text=${textoWp}`, '_blank');
+    window.open(`https://wa.me/${numeroDestino}?text=${encodeURIComponent(textoWp)}`, '_blank');
 }
 
 function closeAdminModal() {
@@ -618,17 +980,32 @@ function closeAdminModal() {
 // ==========================================
 document.addEventListener('paste', (e) => {
     const adminModal = document.getElementById('admin-modal');
-    if (!adminModal || adminModal.classList.contains('hidden')) return;
-
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-            const blob = items[i].getAsFile();
-            if (blob) {
-                const archivoImagen = new File([blob], `imagen_pegada_${Date.now()}.png`, { type: blob.type });
-                archivosSeleccionadosParaSubir.push(archivoImagen);
-                renderizarVistasPrevias();
-                mostrarToast("Imagen pegada exitosamente", "success");
+    const adminOfertaModal = document.getElementById('admin-oferta-modal');
+    
+    if (adminModal && !adminModal.classList.contains('hidden')) {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    const archivoImagen = new File([blob], `imagen_pegada_${Date.now()}.png`, { type: blob.type });
+                    archivosSeleccionadosParaSubir.push(archivoImagen);
+                    renderizarVistasPrevias();
+                    mostrarToast("Imagen pegada exitosamente", "success");
+                }
+            }
+        }
+    } else if (adminOfertaModal && !adminOfertaModal.classList.contains('hidden')) {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    const archivoImagen = new File([blob], `oferta_pegada_${Date.now()}.png`, { type: blob.type });
+                    archivosOfertaParaSubir.push(archivoImagen);
+                    renderizarVistasPreviasOferta();
+                    mostrarToast("Imagen de oferta pegada", "success");
+                }
             }
         }
     }
@@ -701,10 +1078,13 @@ async function handleAgregarRepuesto(e) {
 
     for (let i = 0; i < archivosSeleccionadosParaSubir.length; i++) {
         const file = archivosSeleccionadosParaSubir[i];
-        const fileName = `${Date.now()}_${i}_${file.name}`;
+        
+        const fileOptimizado = await comprimirImagen(file);
+
+        const fileName = `${Date.now()}_${i}_${fileOptimizado.name}`;
         const { error: uploadError } = await _supabase.storage
             .from('repuestos')
-            .upload(fileName, file);
+            .upload(fileName, fileOptimizado);
 
         if (uploadError) {
             mostrarToast("Error al subir imagen: " + uploadError.message, "error");
@@ -771,7 +1151,7 @@ async function handleEditarRepuesto(e) {
 // CIERRE DE SESIÓN AUTOMÁTICO POR INACTIVIDAD (15 MINUTOS)
 // ==========================================
 let temporizadorInactividad;
-const TIEMPO_INACTIVIDAD_MS = 15 * 60 * 1000; // 15 minutos en milisegundos
+const TIEMPO_INACTIVIDAD_MS = 15 * 60 * 1000;
 
 function reiniciarTemporizadorInactividad() {
     clearTimeout(temporizadorInactividad);
@@ -808,7 +1188,7 @@ function toggleMostrarPassword() {
 }
 
 // ==========================================
-// GESTIÓN DE STOCK EN TIEMPO REAL (CON TEXTO PERSONALIZADO)
+// GESTIÓN DE STOCK EN TIEMPO REAL
 // ==========================================
 function actualizarPanelStock(lista) {
     const adminAlert = document.getElementById('admin-stock-alert');
@@ -823,7 +1203,6 @@ function actualizarPanelStock(lista) {
     const sinStockCount = lista.filter(r => parseInt(r.stock) === 0).length;
     const stockBajoCount = lista.filter(r => parseInt(r.stock) > 0 && parseInt(r.stock) <= 2).length;
 
-    // Textos personalizados en singular y plural
     const textoSinStock = sinStockCount === 1 ? '1 producto sin stock' : `${sinStockCount} productos sin stock`;
     const textoStockBajo = stockBajoCount === 1 ? '1 producto con stock crítico' : `${stockBajoCount} productos con stock crítico`;
 
@@ -836,7 +1215,6 @@ function actualizarPanelStock(lista) {
     }
 }
 
-// Función para alternar entre ver stock crítico o stock completo
 function toggleFiltroStockCritico() {
     const btnToggle = document.getElementById('btn-stock-toggle');
     
@@ -874,7 +1252,6 @@ function actualizarOpenGraph(repuesto = null) {
     const twImage = document.getElementById('twitter-image');
 
     if (repuesto) {
-        // Datos específicos del repuesto abierto
         const imagenesArray = repuesto.imagen ? repuesto.imagen.split(',').map(img => img.trim()).filter(img => img !== '') : [];
         const imgPrincipal = imagenesArray.length > 0 ? imagenesArray[0] : 'https://ochoamotos.com/img/REPMOTOS.png';
         const tituloTexto = `${repuesto.nombre} - REP MOTOS`;
@@ -889,7 +1266,6 @@ function actualizarOpenGraph(repuesto = null) {
         if (twDesc) twDesc.setAttribute('content', descTexto);
         if (twImage) twImage.setAttribute('content', imgPrincipal);
     } else {
-        // Valores por defecto de la tienda
         const tituloDefault = "REP MOTOS - Catálogo y Stock de Repuestos";
         const descDefault = "Encontrá componentes de motor, transmisión, frenos y electricidad para tu moto con calidad garantizada y atención directa.";
         const imgDefault = "https://ochoamotos.com/img/REPMOTOS.png";
@@ -906,7 +1282,7 @@ function actualizarOpenGraph(repuesto = null) {
 }
 
 // ==========================================
-// FORMATEAR PRECIOS (Ej: 26615.60 -> $26.615,60)
+// FORMATEAR PRECIOS
 // ==========================================
 function formatearPrecio(precio) {
     const numero = parseFloat(precio);
@@ -916,4 +1292,38 @@ function formatearPrecio(precio) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+}
+
+// ==========================================
+// CERRAR MODALES CON TECLA ESC
+// ==========================================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modalDetalle = document.getElementById('detalle-modal');
+        const modalOfertaDetalle = document.getElementById('detalle-oferta-modal');
+        const modalOfertaEdit = document.getElementById('edit-oferta-modal');
+        
+        if (modalDetalle && !modalDetalle.classList.contains('hidden')) {
+            closeDetalleModal();
+        }
+        if (modalOfertaDetalle && !modalOfertaDetalle.classList.contains('hidden')) {
+            closeDetalleOfertaModal();
+        }
+        if (modalOfertaEdit && !modalOfertaEdit.classList.contains('hidden')) {
+            closeEditOfertaModal();
+        }
+    }
+});
+
+function toggleMenuMobile() {
+    const menu = document.getElementById('menu-mobile');
+    const icono = document.getElementById('icono-menu');
+    if (!menu) return;
+
+    menu.classList.toggle('hidden');
+    if (menu.classList.contains('hidden')) {
+        icono.className = "fa-solid fa-bars";
+    } else {
+        icono.className = "fa-solid fa-xmark";
+    }
 }
